@@ -20,11 +20,23 @@ export default function SignInPage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  // Super Admin pre-made credentials
+  const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || 'superadmin@example.com';
+  const SUPER_ADMIN_PASSWORD = process.env.NEXT_PUBLIC_SUPER_ADMIN_PASSWORD || 'SuperSecret123';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // ✅ Super Admin login check
+      if (email === SUPER_ADMIN_EMAIL && password === SUPER_ADMIN_PASSWORD) {
+        toast({ title: 'Super Admin Login', description: 'Welcome Super Admin!' });
+        router.push('/superadmin/dashboard');
+        return;
+      }
+
+      // Regular user login
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
 
@@ -42,10 +54,10 @@ export default function SignInPage() {
         case 'Doctor':
         case 'Receptionist':
         case 'Lab Technician':
-          router.push('/hospital/dashboard'); // dashboard per hospital
+          router.push('/hospital/dashboard');
           break;
         default:
-          router.push('/auth/sign-in'); // fallback
+          router.push('/auth/sign-in');
       }
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Login Failed', description: error.message || 'Invalid credentials.' });
